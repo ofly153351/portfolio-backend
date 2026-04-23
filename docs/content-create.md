@@ -49,7 +49,10 @@ Response `200`:
       "about": "",
       "contactEmail": "",
       "contactPhone": "",
-      "location": ""
+      "location": "",
+      "github": "",
+      "linkedin": "",
+      "instagram": ""
     }
   }
 }
@@ -83,7 +86,10 @@ Request:
       "about": "",
       "contactEmail": "",
       "contactPhone": "",
-      "location": ""
+      "location": "",
+      "github": "https://github.com/username",
+      "linkedin": "https://www.linkedin.com/in/username",
+      "instagram": "https://www.instagram.com/username"
     }
   }
 }
@@ -107,12 +113,57 @@ Response `409`:
 ```
 
 ## 3) POST `/api/admin/content/publish?locale=en`
+ใช้สำหรับนำ `draft` ล่าสุดของ locale นั้นไปทับเป็น `published` เพื่อให้ Public endpoint (`/api/content`) อ่านข้อมูลล่าสุดได้
+
+Headers:
+```http
+Authorization: Bearer <access_token> 
+Content-Type: application/json
+```
+
+Request Body: ไม่มี
+
+Example:
+```bash
+curl -X POST "http://localhost:8080/api/admin/content/publish?locale=en" \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json"
+```
+
+ตัวอย่างภาษาไทย:
+```bash
+curl -X POST "http://localhost:8080/api/admin/content/publish?locale=th" \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json"
+```
+
 Response `200`:
 ```json
 {
   "ok": true,
   "published_version": 13,
   "published_at": "2026-04-09T14:15:00Z"
+}
+```
+
+Response `400`:
+```json
+{
+  "error": "invalid_locale"
+}
+```
+
+Response `401`:
+```json
+{
+  "authenticated": false
+}
+```
+
+Response `500`:
+```json
+{
+  "error": "internal_error"
 }
 ```
 
@@ -212,6 +263,9 @@ Response `200`:
 - `projects[].image` ต้องเป็น URL `http/https` (ถ้าส่งมา)
 - `projects[].images[]` ต้องเป็น URL `http/https` (ถ้าส่งมา)
 - `portfolioInfo.about` ยาวไม่เกิน 5000 ตัวอักษร
+- `portfolioInfo.github` ต้องเป็น URL `http/https` (ถ้าส่งมา)
+- `portfolioInfo.linkedin` ต้องเป็น URL `http/https` (ถ้าส่งมา)
+- `portfolioInfo.instagram` ต้องเป็น URL `http/https` (ถ้าส่งมา)
 - `technical[].description` ยาวไม่เกิน 2000 ตัวอักษร
 - `projects[].description` ยาวไม่เกิน 3000 ตัวอักษร
 

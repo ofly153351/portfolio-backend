@@ -41,6 +41,9 @@ func defaultContentBody() ContentBody {
 			ContactEmail: "",
 			ContactPhone: "",
 			Location:     "",
+			Github:       "",
+			Linkedin:     "",
+			Instagram:    "",
 		},
 	}
 }

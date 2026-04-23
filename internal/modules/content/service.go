@@ -342,6 +342,15 @@ func validateContent(content ContentBody) error {
 	if len(content.PortfolioInfo.About) > 5000 {
 		return ErrInvalidPayload
 	}
+	if !isValidURL(content.PortfolioInfo.Github) {
+		return ErrInvalidPayload
+	}
+	if !isValidURL(content.PortfolioInfo.Linkedin) {
+		return ErrInvalidPayload
+	}
+	if !isValidURL(content.PortfolioInfo.Instagram) {
+		return ErrInvalidPayload
+	}
 	for _, item := range content.Technical {
 		if strings.TrimSpace(item.Title) == "" {
 			return ErrInvalidPayload

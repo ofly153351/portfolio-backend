@@ -27,6 +27,9 @@ type PortfolioInfo struct {
 	ContactEmail string `json:"contactEmail"`
 	ContactPhone string `json:"contactPhone"`
 	Location     string `json:"location"`
+	Github       string `json:"github"`
+	Linkedin     string `json:"linkedin"`
+	Instagram    string `json:"instagram"`
 }
 
 type ContentBody struct {
