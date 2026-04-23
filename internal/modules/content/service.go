@@ -360,6 +360,9 @@ func validateContent(content ContentBody) error {
 		if len(item.Description) > 3000 {
 			return ErrInvalidPayload
 		}
+		if !isValidURL(item.ProjectURL) {
+			return ErrInvalidPayload
+		}
 		if !isValidURL(item.Image) {
 			return ErrInvalidPayload
 		}

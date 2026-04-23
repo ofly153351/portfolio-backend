@@ -14,6 +14,7 @@ type ProjectItem struct {
 	Tag         string   `json:"tag"`
 	Title       string   `json:"title"`
 	Description string   `json:"description"`
+	ProjectURL  string   `json:"projectUrl"`
 	Image       string   `json:"image"`
 	Images      []string `json:"images"`
 }
