@@ -17,6 +17,7 @@
   "tag": "AI",
   "title": "Portfolio CMS",
   "description": "Backoffice + AI chat",
+  "repoUrl": "https://github.com/username/portfolio-cms",
   "projectUrl": "https://portfolio.example.com",
   "image": "http://localhost:9000/portfolio/projects/cover.jpg",
   "images": [
@@ -74,6 +75,7 @@ Request:
         "tag": "AI",
         "title": "Portfolio CMS",
         "description": "Backoffice + AI chat",
+        "repoUrl": "https://github.com/username/portfolio-cms",
         "projectUrl": "https://portfolio.example.com",
         "image": "http://localhost:9000/portfolio/projects/cover.jpg",
         "images": [
@@ -268,6 +270,7 @@ Response `200`:
 - ระบบจะ normalize `technical[].index` ใหม่ตามลำดับใน array ก่อนบันทึก (0..n-1)
 - `projects[].index` ต้องเป็นจำนวนเต็ม >= 0
 - ระบบจะ normalize `projects[].index` ใหม่ตามลำดับใน array ก่อนบันทึก (0..n-1)
+- `projects[].repoUrl` ต้องเป็น URL `http/https` (ถ้าส่งมา)
 - `technical[].icon` ต้องเป็น URL `http/https` (ถ้าส่งมา)
 - `projects[].projectUrl` ต้องเป็น URL `http/https` (ถ้าส่งมา)
 - `projects[].image` ต้องเป็น URL `http/https` (ถ้าส่งมา)
