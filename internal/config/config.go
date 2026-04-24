@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"strconv"
+	"strings"
 )
 
 // Config stores runtime configuration.
@@ -23,6 +24,8 @@ type Config struct {
 	AuthTokenTTLMinutes  int
 	AIServiceURL         string
 	AIServiceTimeout     int
+	PublicTokenSecret    string
+	PublicTokenTTL       int
 	OpenAIAPIKey         string
 	OpenAIBaseURL        string
 	OpenAIChatModel      string
@@ -58,8 +61,9 @@ func Load() Config {
 
 	allowHeaders := os.Getenv("CORS_ALLOW_HEADERS")
 	if allowHeaders == "" {
-		allowHeaders = "Origin,Content-Type,Accept,Authorization"
+		allowHeaders = "Origin,Content-Type,Accept,Authorization,X-Public-Token"
 	}
+	allowHeaders = ensureHeaderAllowed(allowHeaders, "X-Public-Token")
 	allowCredentials := true
 	if raw := os.Getenv("CORS_ALLOW_CREDENTIALS"); raw != "" {
 		if parsed, err := strconv.ParseBool(raw); err == nil {
@@ -134,6 +138,16 @@ func Load() Config {
 			aiServiceTimeout = parsed
 		}
 	}
+	publicTokenSecret := os.Getenv("PUBLIC_TOKEN_SECRET")
+	if publicTokenSecret == "" {
+		publicTokenSecret = "dev-public-token-secret-change-me"
+	}
+	publicTokenTTL := 300
+	if raw := os.Getenv("PUBLIC_TOKEN_TTL_SECONDS"); raw != "" {
+		if parsed, err := strconv.Atoi(raw); err == nil && parsed > 0 {
+			publicTokenTTL = parsed
+		}
+	}
 
 	openAIAPIKey := os.Getenv("OPENAI_API_KEY")
 	openAIBaseURL := os.Getenv("OPENAI_BASE_URL")
@@ -167,6 +181,8 @@ func Load() Config {
 		AuthTokenTTLMinutes:  authTokenTTLMinutes,
 		AIServiceURL:         aiServiceURL,
 		AIServiceTimeout:     aiServiceTimeout,
+		PublicTokenSecret:    publicTokenSecret,
+		PublicTokenTTL:       publicTokenTTL,
 		OpenAIAPIKey:         openAIAPIKey,
 		OpenAIBaseURL:        openAIBaseURL,
 		OpenAIChatModel:      openAIChatModel,
@@ -177,4 +193,21 @@ func Load() Config {
 		CORSAllowHeaders:     allowHeaders,
 		CORSAllowCredentials: allowCredentials,
 	}
+}
+
+func ensureHeaderAllowed(existing, required string) string {
+	required = strings.TrimSpace(required)
+	if required == "" {
+		return existing
+	}
+	parts := strings.Split(existing, ",")
+	for _, part := range parts {
+		if strings.EqualFold(strings.TrimSpace(part), required) {
+			return existing
+		}
+	}
+	if strings.TrimSpace(existing) == "" {
+		return required
+	}
+	return existing + "," + required
 }

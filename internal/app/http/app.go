@@ -21,6 +21,7 @@ func NewApp(cfg config.Config) *fiber.App {
 	api := app.Group("/api")
 	registerAuthRoutes(api, deps)
 	registerHealthRoutes(api, deps)
+	registerPublicRoutes(api, deps)
 	registerContentRoutes(api, deps)
 	registerUploadRoutes(api, deps)
 	registerChatRoutes(api, deps)

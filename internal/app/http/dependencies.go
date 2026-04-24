@@ -8,6 +8,7 @@ import (
 	chatmodule "portfolio-backend/internal/modules/chat"
 	contentmodule "portfolio-backend/internal/modules/content"
 	healthmodule "portfolio-backend/internal/modules/health"
+	publicauthmodule "portfolio-backend/internal/modules/publicauth"
 	uploadmodule "portfolio-backend/internal/modules/upload"
 	"time"
 )
@@ -18,6 +19,7 @@ type Dependencies struct {
 	ContentHandler *contentmodule.Handler
 	UploadHandler  *uploadmodule.Handler
 	ChatHandler    *chatmodule.Handler
+	PublicHandler  *publicauthmodule.Handler
 }
 
 func NewDependencies(cfg config.Config) *Dependencies {
@@ -35,7 +37,12 @@ func NewDependencies(cfg config.Config) *Dependencies {
 	}
 	contentRepo := contentmodule.NewMongoRepository(mongoClient.Database(cfg.MongoDB))
 	contentService := contentmodule.NewService(contentRepo)
-	contentHandler := contentmodule.NewHandler(contentService, authHandler)
+	publicAuthService := publicauthmodule.NewService(
+		cfg.PublicTokenSecret,
+		time.Duration(cfg.PublicTokenTTL)*time.Second,
+	)
+	publicAuthHandler := publicauthmodule.NewHandler(publicAuthService)
+	contentHandler := contentmodule.NewHandler(contentService, authHandler, publicAuthHandler)
 
 	uploadService, err := uploadmodule.NewService(cfg)
 	if err != nil {
@@ -54,6 +61,7 @@ func NewDependencies(cfg config.Config) *Dependencies {
 		HealthHandler:  healthmodule.NewHandler(),
 		ContentHandler: contentHandler,
 		UploadHandler:  uploadHandler,
-		ChatHandler:    chatmodule.NewHandler(chatService),
+		ChatHandler:    chatmodule.NewHandler(chatService, publicAuthHandler),
+		PublicHandler:  publicAuthHandler,
 	}
 }

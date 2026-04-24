@@ -5,15 +5,17 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	authmodule "portfolio-backend/internal/modules/auth"
+	publicauthmodule "portfolio-backend/internal/modules/publicauth"
 )
 
 type Handler struct {
-	service *Service
-	auth    *authmodule.Handler
+	service    *Service
+	auth       *authmodule.Handler
+	publicAuth *publicauthmodule.Handler
 }
 
-func NewHandler(service *Service, auth *authmodule.Handler) *Handler {
-	return &Handler{service: service, auth: auth}
+func NewHandler(service *Service, auth *authmodule.Handler, publicAuth *publicauthmodule.Handler) *Handler {
+	return &Handler{service: service, auth: auth, publicAuth: publicAuth}
 }
 
 func (h *Handler) RegisterRoutes(router fiber.Router) {
@@ -108,6 +110,11 @@ func (h *Handler) GetContentHistory(c *fiber.Ctx) error {
 func (h *Handler) GetPublicContent(c *fiber.Ctx) error {
 	if h.service == nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "content_service_unavailable"})
+	}
+	if h.publicAuth != nil {
+		if err := h.publicAuth.ValidateHTTP(c); err != nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "public_token_invalid"})
+		}
 	}
 	locale := c.Query("locale", "en")
 	resp, err := h.service.GetPublished(locale)

@@ -196,6 +196,13 @@ Response `200`:
 ## 5) GET `/api/content?locale=en`
 Public endpoint สำหรับ frontend portfolio
 
+Headers:
+```http
+X-Public-Token: <public_token>
+```
+
+โดย token ได้จาก `GET /api/public/token`
+
 Response `200`:
 ```json
 {
@@ -205,6 +212,13 @@ Response `200`:
     "projects": [],
     "portfolioInfo": {}
   }
+}
+```
+
+Response `401`:
+```json
+{
+  "error": "public_token_invalid"
 }
 ```
 

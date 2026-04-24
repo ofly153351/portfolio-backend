@@ -1,8 +1,9 @@
 # WebSocket Chat Streaming (Only Streaming Channel)
 
 ## Endpoint
-- URL: `ws://localhost:8080/api/chat/ws`
+- URL: `ws://localhost:8080/api/chat/ws?public_token=<token>`
 - Protocol: WebSocket
+- รับ token จาก `GET /api/public/token`
 
 ## Client -> Server message
 ```json
@@ -83,9 +84,13 @@ export default function ChatWS() {
   const [status, setStatus] = useState("idle");
   const [usage, setUsage] = useState<WsEvent["usage"]>();
 
-  const connect = () => {
+  const connect = async () => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;
-    const ws = new WebSocket("ws://localhost:8080/api/chat/ws");
+    const tokenResp = await fetch("http://localhost:8080/api/public/token");
+    const tokenData = await tokenResp.json();
+    const ws = new WebSocket(
+      `ws://localhost:8080/api/chat/ws?public_token=${encodeURIComponent(tokenData.token)}`
+    );
 
     ws.onopen = () => setStatus("connected");
     ws.onclose = () => setStatus("closed");
