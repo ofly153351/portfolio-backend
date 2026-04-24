@@ -4,6 +4,7 @@ import "time"
 
 type TechnicalItem struct {
 	ID          string `json:"id"`
+	Index       int    `json:"index"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Icon        string `json:"icon"`
@@ -11,6 +12,7 @@ type TechnicalItem struct {
 
 type ProjectItem struct {
 	ID          string   `json:"id"`
+	Index       int      `json:"index"`
 	Tag         string   `json:"tag"`
 	Title       string   `json:"title"`
 	Description string   `json:"description"`

@@ -30,6 +30,7 @@ func (s *Service) GetDraft(locale string) (GetAdminContentResponse, error) {
 	if err != nil {
 		return GetAdminContentResponse{}, err
 	}
+	entry.Content = withContentIndexes(entry.Content)
 	return GetAdminContentResponse{
 		Locale:    normalized,
 		Version:   entry.Version,
@@ -46,6 +47,7 @@ func (s *Service) SaveDraft(locale string, req PutAdminContentRequest, actor aut
 	if s.repo == nil {
 		return PutAdminContentResponse{}, ErrUnauthorized
 	}
+	req.Content = withContentIndexes(req.Content)
 	if err := validateContent(req.Content); err != nil {
 		return PutAdminContentResponse{}, err
 	}
@@ -92,6 +94,7 @@ func (s *Service) Publish(locale string, actor authmodule.User) (PublishResponse
 		return PublishResponse{}, err
 	}
 	published := current
+	published.Content = withContentIndexes(published.Content)
 	published.UpdatedBy = actor.Username
 	published.UpdatedAt = time.Now().UTC()
 	if err := s.repo.UpsertContent(context.Background(), published, "published"); err != nil {
@@ -138,6 +141,8 @@ func (s *Service) CreateTechnical(locale string, item TechnicalItem, actor authm
 	}
 	content := current.Content
 	content.Technical = append(content.Technical, item)
+	content = withContentIndexes(content)
+	item = content.Technical[len(content.Technical)-1]
 
 	entry := HistoryItem{
 		Locale:    normalized,
@@ -193,6 +198,13 @@ func (s *Service) UpdateTechnical(locale, id string, item TechnicalItem, actor a
 	if !found {
 		return TechnicalMutationResponse{}, ErrNotFound
 	}
+	content = withContentIndexes(content)
+	for i := range content.Technical {
+		if strings.TrimSpace(content.Technical[i].ID) == targetID {
+			item = content.Technical[i]
+			break
+		}
+	}
 
 	entry := HistoryItem{
 		Locale:    normalized,
@@ -246,6 +258,7 @@ func (s *Service) DeleteTechnical(locale, id string, actor authmodule.User) (Tec
 		return TechnicalDeleteResponse{}, ErrNotFound
 	}
 	content.Technical = filtered
+	content = withContentIndexes(content)
 
 	entry := HistoryItem{
 		Locale:    normalized,
@@ -280,6 +293,9 @@ func (s *Service) History(locale string) (HistoryResponse, error) {
 	if err != nil {
 		return HistoryResponse{}, err
 	}
+	for i := range history {
+		history[i].Content = withContentIndexes(history[i].Content)
+	}
 	return HistoryResponse{
 		Locale:  normalized,
 		History: history,
@@ -306,7 +322,7 @@ func (s *Service) GetPublished(locale string) (PublicContentResponse, error) {
 	}
 	return PublicContentResponse{
 		Locale:  normalized,
-		Content: entry.Content,
+		Content: withContentIndexes(entry.Content),
 	}, nil
 }
 
@@ -316,6 +332,7 @@ func (s *Service) ensureDraft(ctx context.Context, locale string, actor authmodu
 		return HistoryItem{}, false, err
 	}
 	if found {
+		entry.Content = withContentIndexes(entry.Content)
 		return entry, true, nil
 	}
 	now := time.Now().UTC()
@@ -363,6 +380,9 @@ func validateContent(content ContentBody) error {
 		}
 	}
 	for _, item := range content.Projects {
+		if item.Index < 0 {
+			return ErrInvalidPayload
+		}
 		if strings.TrimSpace(item.Title) == "" {
 			return ErrInvalidPayload
 		}
@@ -385,6 +405,9 @@ func validateContent(content ContentBody) error {
 }
 
 func validateTechnicalItem(item TechnicalItem) error {
+	if item.Index < 0 {
+		return ErrInvalidPayload
+	}
 	if strings.TrimSpace(item.Title) == "" {
 		return ErrInvalidPayload
 	}
@@ -395,4 +418,26 @@ func validateTechnicalItem(item TechnicalItem) error {
 		return ErrInvalidPayload
 	}
 	return nil
+}
+
+func withContentIndexes(content ContentBody) ContentBody {
+	if len(content.Technical) > 0 {
+		normalizedTechnical := make([]TechnicalItem, len(content.Technical))
+		copy(normalizedTechnical, content.Technical)
+		for i := range normalizedTechnical {
+			normalizedTechnical[i].Index = i
+		}
+		content.Technical = normalizedTechnical
+	}
+
+	if len(content.Projects) > 0 {
+		normalizedProjects := make([]ProjectItem, len(content.Projects))
+		copy(normalizedProjects, content.Projects)
+		for i := range normalizedProjects {
+			normalizedProjects[i].Index = i
+		}
+		content.Projects = normalizedProjects
+	}
+
+	return content
 }

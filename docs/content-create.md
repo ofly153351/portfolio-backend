@@ -13,6 +13,7 @@
 ```json
 {
   "id": "proj_1",
+  "index": 0,
   "tag": "AI",
   "title": "Portfolio CMS",
   "description": "Backoffice + AI chat",
@@ -36,6 +37,7 @@ Response `200`:
     "technical": [
       {
         "id": "tech_1",
+        "index": 0,
         "title": "Go",
         "description": "Backend API",
         "icon": "http://localhost:9000/portfolio/technical/go.svg"
@@ -68,6 +70,7 @@ Request:
     "projects": [
       {
         "id": "proj_1",
+        "index": 0,
         "tag": "AI",
         "title": "Portfolio CMS",
         "description": "Backoffice + AI chat",
@@ -215,6 +218,7 @@ Response `200`:
   "items": [
     {
       "id": "tech_1",
+      "index": 0,
       "title": "Go",
       "description": "Backend API",
       "icon": "http://localhost:9000/portfolio/technical/go.svg"
@@ -227,6 +231,7 @@ Response `200`:
 Request:
 ```json
 {
+  "index": 0,
   "title": "Redis",
   "description": "Cache and memory store",
   "icon": "http://localhost:9000/portfolio/technical/redis.svg"
@@ -237,6 +242,7 @@ Request:
 Request:
 ```json
 {
+  "index": 1,
   "title": "Redis",
   "description": "Cache, queue, memory",
   "icon": "http://localhost:9000/portfolio/technical/redis.svg"
@@ -258,6 +264,10 @@ Response `200`:
 
 - `locale` ต้องเป็น `en` หรือ `th`
 - `technical[].title` และ `projects[].title` จำเป็นต้องมี
+- `technical[].index` ต้องเป็นจำนวนเต็ม >= 0
+- ระบบจะ normalize `technical[].index` ใหม่ตามลำดับใน array ก่อนบันทึก (0..n-1)
+- `projects[].index` ต้องเป็นจำนวนเต็ม >= 0
+- ระบบจะ normalize `projects[].index` ใหม่ตามลำดับใน array ก่อนบันทึก (0..n-1)
 - `technical[].icon` ต้องเป็น URL `http/https` (ถ้าส่งมา)
 - `projects[].projectUrl` ต้องเป็น URL `http/https` (ถ้าส่งมา)
 - `projects[].image` ต้องเป็น URL `http/https` (ถ้าส่งมา)
