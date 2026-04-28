@@ -13,15 +13,16 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: production
 
     steps:
       - name: Deploy on server via SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          port: ${{ secrets.SSH_PORT || '22' }}
+          host: ${{ secrets.SSH_HOST || vars.SSH_HOST }}
+          username: ${{ secrets.SSH_USER || vars.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD || vars.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT || vars.SSH_PORT || '22' }}
           script_stop: true
           script: |
             set -e
