@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT_DIR="${PROJECT_DIR:-$HOME/portfolio/portfolio-backend}"
+PROJECT_DIR="/home/ubuntu/portfolio/portfolio-backend"
 AI_DIR="$PROJECT_DIR/ai-service"
 
 GO_NAME="${GO_NAME:-go-api}"
