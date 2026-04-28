@@ -43,6 +43,16 @@ jobs:
             git pull origin main
 
             chmod +x ./server.sh
+            set -ex
+            whoami
+            echo "HOME=$HOME"
+            pwd
+            which pm2 || true
+            which go || true
+            which uv || true
+            pm2 -v || true
+            go version || true
+            uv --version || true
             ./server.sh
 
             echo "===== PM2 STATUS ====="
