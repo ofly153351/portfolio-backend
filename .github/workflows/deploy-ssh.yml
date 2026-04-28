@@ -1,42 +1,27 @@
-name: Deploy PM2 (Go API + AI Service)
+name: Deploy on Main (Root)
 
 on:
   push:
     branches: ["main"]
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: "Git branch to deploy"
-        required: true
-        default: "main"
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
-    environment: production
+    runs-on: self-hosted
 
     steps:
-      - name: Deploy on server via SSH
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.SSH_HOST || vars.SSH_HOST }}
-          username: ${{ secrets.SSH_USER || vars.SSH_USER }}
-          password: ${{ secrets.SSH_PASSWORD || vars.SSH_PASSWORD }}
-          port: ${{ secrets.SSH_PORT || vars.SSH_PORT || '22' }}
-          script_stop: true
-          script: |
-            set -e
-            BRANCH="${{ github.event.inputs.branch || 'main' }}"
-            PROJECT_DIR="${{ secrets.PROJECT_DIR }}"
+      - name: Ensure root
+        run: |
+          if [ "$(id -u)" -ne 0 ]; then
+            echo "This workflow must run as root"
+            exit 1
+          fi
 
-            if [ -z "$PROJECT_DIR" ]; then
-              PROJECT_DIR="$HOME/portfolio/portfolio-backend"
-            fi
-
-            cd "$PROJECT_DIR"
-            git fetch --all --prune
-            git checkout "$BRANCH"
-            git pull origin "$BRANCH"
-
-            chmod +x ./server.sh
-            PROJECT_DIR="$PROJECT_DIR" ./server.sh
+      - name: Pull and run server.sh
+        run: |
+          set -e
+          cd /home/ubuntu/portfolio/portfolio-backend
+          git fetch --all --prune
+          git checkout main
+          git pull origin main
+          chmod +x ./server.sh
+          ./server.sh
