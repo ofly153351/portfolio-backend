@@ -1,0 +1,41 @@
+name: Deploy PM2 (Go API + AI Service)
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Git branch to deploy"
+        required: true
+        default: "main"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy on server via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT || '22' }}
+          script_stop: true
+          script: |
+            set -e
+            BRANCH="${{ github.event.inputs.branch || 'main' }}"
+            PROJECT_DIR="${{ secrets.PROJECT_DIR }}"
+
+            if [ -z "$PROJECT_DIR" ]; then
+              PROJECT_DIR="$HOME/portfolio/portfolio-backend"
+            fi
+
+            cd "$PROJECT_DIR"
+            git fetch --all --prune
+            git checkout "$BRANCH"
+            git pull origin "$BRANCH"
+
+            chmod +x ./server.sh
+            PROJECT_DIR="$PROJECT_DIR" ./server.sh
