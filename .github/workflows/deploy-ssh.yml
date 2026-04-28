@@ -41,7 +41,7 @@ jobs:
               PROJECT_DIR="\$HOME/portfolio/portfolio-backend"
             fi
 
-            cd "\$PROJECT_DIR"
+            cd /home/ubuntu/portfolio/portfolio-backend
 
             git fetch --all --prune
             git checkout main
