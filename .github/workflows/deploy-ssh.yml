@@ -36,11 +36,6 @@ jobs:
 
             set -e
 
-            PROJECT_DIR="${{ secrets.PROJECT_DIR }}"
-            if [ -z "\$PROJECT_DIR" ]; then
-              PROJECT_DIR="\$HOME/portfolio/portfolio-backend"
-            fi
-
             cd /home/ubuntu/portfolio/portfolio-backend
 
             git fetch --all --prune
